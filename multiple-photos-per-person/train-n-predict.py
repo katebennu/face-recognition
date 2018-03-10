@@ -1,12 +1,15 @@
-#OpenCV module
 import cv2
-#os module for reading training data directories and paths
 import os
-#numpy to convert python lists to numpy arrays as it is needed by OpenCV face recognizers
 import numpy as np
 
 #there is no label 0 in our training data so subject name for index/label 0 is empty
-subjects = ["", "Warren", "Linus"]
+subjects = []
+
+
+def listdir_nohidden(path):
+    for f in os.listdir(path):
+        if not f.startswith('.'):
+            yield f
 
 #function to detect face using OpenCV
 def detect_face(img):
@@ -40,7 +43,7 @@ def detect_face(img):
 def prepare_training_data(data_folder_path):
     # ------STEP-1--------
     # get the directories (one directory for each subject) in data folder
-    dirs = os.listdir(data_folder_path)
+    dirs = list(listdir_nohidden(data_folder_path))
 
     # list to hold all subject faces
     faces = []
@@ -48,18 +51,17 @@ def prepare_training_data(data_folder_path):
     labels = []
 
     # let's go through each directory and read images within it
-    for dir_name in dirs:
+    for i in range(len(dirs)):
+        dir_name = dirs[i]
 
-        # our subject directories start with letter 's' so
+        subjects.append(dir_name)
         # ignore any non-relevant directories if any
-        if not dir_name.startswith("s"):
+        if dir_name.startswith("."):
             continue
 
         # ------STEP-2--------
-        # extract label number of subject from dir_name
-        # format of dir name = slabel
-        # , so removing letter 's' from dir_name will give us label
-        label = int(dir_name.replace("s", ""))
+        # labels must be integers
+        label = i
 
         # build path of directory containing images for current subject subject
         # sample subject_dir_path = "training-data/s1"
@@ -85,7 +87,7 @@ def prepare_training_data(data_folder_path):
             image = cv2.imread(image_path)
 
             # display an image window to show the image
-            cv2.imshow("Training on image...", image)
+            # cv2.imshow("Training on image...", image)
             cv2.waitKey(100)
 
             # detect face
@@ -122,3 +124,73 @@ print(labels)
 # print total faces and labels
 print("Total faces: ", len(faces))
 print("Total labels: ", len(labels))
+
+#create our LBPH face recognizer
+face_recognizer = cv2.face.LBPHFaceRecognizer_create()
+
+#or use EigenFaceRecognizer by replacing above line with
+#face_recognizer = cv2.face.createEigenFaceRecognizer()
+
+#or use FisherFaceRecognizer by replacing above line with
+#face_recognizer = cv2.face.createFisherFaceRecognizer()
+
+#train our face recognizer of our training faces
+face_recognizer.train(faces, np.array(labels))
+
+
+# function to draw rectangle on image
+# according to given (x, y) coordinates and
+# given width and heigh
+def draw_rectangle(img, rect):
+    (x, y, w, h) = rect
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+
+# function to draw text on give image starting from
+# passed (x, y) coordinates.
+def draw_text(img, text, x, y):
+    cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
+
+
+# this function recognizes the person in image passed
+# and draws a rectangle around detected face with name of the
+# subject
+def predict(test_img):
+    # make a copy of the image as we don't want to change original image
+    img = test_img.copy()
+    # detect face from the image
+    face, rect = detect_face(img)
+
+    # predict the image using our face recognizer
+    prediction = face_recognizer.predict(face)
+
+    print(subjects)
+    print(prediction)
+
+    label = prediction[0]
+    # get name of respective label returned by face recognizer
+    label_text = subjects[label]
+    print(label_text)
+
+    # draw a rectangle around face detected
+    draw_rectangle(img, rect)
+    # draw name of predicted person
+    draw_text(img, label_text, rect[0], rect[1] - 5)
+    return img
+
+print("Predicting images...")
+
+# load test images
+test_img1 = cv2.imread("test-data/test1.jpg")
+# test_img2 = cv2.imread("test-data/test2.jpg")
+
+# perform a prediction
+predicted_img1 = predict(test_img1)
+# predicted_img2 = predict(test_img2)
+print("Prediction complete")
+
+# display both images
+# cv2.imshow(subjects[1], predicted_img1)
+# cv2.imshow(subjects[2], predicted_img2)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
