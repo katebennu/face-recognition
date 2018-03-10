@@ -55,9 +55,6 @@ def prepare_training_data(data_folder_path):
         print(subject_train_images)
 
         for image_name in subject_train_images:
-            # ignore system files like .DS_Store
-            if image_name.startswith("."):
-                continue
 
             image_path = subject_dir_path + "/" + image_name
 
@@ -77,8 +74,8 @@ def prepare_training_data(data_folder_path):
 
 
 def main():
-    print("Preparing data...")
-    faces, labels = prepare_training_data("training-data")
+    print("Loading training data...")
+    faces, labels = prepare_training_data("data")
     print("Data prepared")
 
     print(labels)

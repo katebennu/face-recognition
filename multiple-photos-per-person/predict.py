@@ -57,7 +57,7 @@ def main():
 
     print("Predicting images...")
 
-    target_image = cv2.imread("target-data/test1.jpg")
+    target_image = cv2.imread("training-data/warren/w9.jpg")
 
     predicted_label = predict(face_recognizer, target_image, subjects)
 

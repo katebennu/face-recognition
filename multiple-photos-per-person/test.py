@@ -1,19 +1,15 @@
 import cv2
 import os
+import math
 
 
-def get_subjects_list(data_folder_path):
-    subjects = [""]
-    dirs = os.listdir(data_folder_path)
+# float between 0 and 1
+TEST_FILES_PROPORTION = 0.3
 
-    for i in range(len(dirs)):
-        dir_name = dirs[i]
 
-        # ignore any non-relevant directories
-        if dir_name.startswith("."):
-            continue
-        subjects.append(dir_name)
-    return subjects
+def get_test_files(subject_dir_path):
+    subject_files = [f for f in sorted(os.listdir(subject_dir_path)) if not f.startswith(".")]
+    return subject_files[-1 * math.floor(len(subject_files) * TEST_FILES_PROPORTION):]
 
 
 def detect_face(img):
@@ -32,36 +28,90 @@ def detect_face(img):
     return gray[y:y+w, x:x+h], faces[0]
 
 
-def predict(face_recognizer, test_img, subjects):
-    img = test_img.copy()
-    face, rect = detect_face(img)
-    # predict the image using our face recognizer
-    prediction = face_recognizer.predict(face)
+def prepare_test_data(data_folder_path):
+    subjects = [""]
+    faces = []
+    labels = []
+
+    dirs = os.listdir(data_folder_path)
+
+    for i in range(len(dirs)):
+        dir_name = dirs[i]
+
+        # ignore any non-relevant directories
+        if dir_name.startswith("."):
+            continue
+        subjects.append(dir_name)
+
+        # labels must be integers
+        label = i
+
+        subject_dir_path = data_folder_path + "/" + dir_name
+
+        subject_train_images = get_test_files(subject_dir_path)
+
+        print(subject_train_images)
+
+        for image_name in subject_train_images:
+
+            image_path = subject_dir_path + "/" + image_name
+
+            image = cv2.imread(image_path)
+
+            # detect face
+            face, rect = detect_face(image)
+
+            if face is not None:
+                faces.append(face)
+                labels.append(label)
+            else:
+                print('No face detected on the image: ' + image_name)
 
     print(subjects)
-    print(prediction)
+    print(labels, len(labels), len(faces))
+    return faces, labels, subjects
 
-    label = prediction[0]
-    return subjects[label]
+
+def predict(face_recognizer, faces, subjects):
+    predictions = []
+    for face in faces:
+        # img = face.copy()
+
+        # predict the image using our face recognizer
+        prediction = face_recognizer.predict(face)
+
+        print(subjects)
+        print(prediction)
+
+        label = prediction[0]
+        predictions.append(label)
+    return predictions
+
+
+def evaluate_predictions(predictions, labels, subjects):
+    m = len(predictions)
+    correct = 0
+    for i in range(m):
+        if labels[i] == predictions[i]:
+            correct += 1
+        print("Actual label: {}, predicted label: {}".format(labels[i], predictions[i]))
+    print("{} out of {} correct".format(correct, m))
 
 
 def main():
     print("Loading model...")
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-
     face_recognizer.read('savedModel.xml')
 
-    print("Getting the list of subjects...")
-
-    subjects = get_subjects_list("training-data")
+    print("Loading test data...")
+    faces, labels, subjects = prepare_test_data("data")
 
     print("Predicting images...")
 
-    target_image = cv2.imread("target-data/test1.jpg")
+    predicted_labels = predict(face_recognizer, faces, subjects)
 
-    predicted_label = predict(face_recognizer, target_image, subjects)
-
-    print("Prediction complete, face recognized: " + predicted_label)
+    evaluate_predictions(predicted_labels, labels, subjects)
+    # print("Prediction complete, face recognized: " + predicted_label)
 
 
 main()
