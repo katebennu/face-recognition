@@ -29,9 +29,9 @@ def detect_face(img):
 
 
 def prepare_data(data_folder_path):
-    subjects = [""]
     dirs = filter_hidden(data_folder_path)
 
+    subjects = []
     faces = []
     labels = []
     files = []
@@ -108,7 +108,7 @@ def evaluate_predictions(predictions, labels, subjects, files):
     m = len(predictions)
     correct = 0
     for i in range(m):
-        print("Actual label: {}, predicted label: {}".format(labels[i], predictions[i]))
+        print("Actual label: {}, predicted label: {}".format(subjects[labels[i]], subjects[predictions[i]]))
         if labels[i] == predictions[i]:
             correct += 1
         else:
@@ -131,10 +131,10 @@ def main():
     print(split['test_files'])
 
     # 3. Train model
-    train_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    train_recognizer.train(split['training_faces'], np.array(split['training_labels']))
-    train_recognizer.save('savedModel.xml')
-    print('Training accomplished successfuly.')
+    # train_recognizer = cv2.face.LBPHFaceRecognizer_create()
+    # train_recognizer.train(split['training_faces'], np.array(split['training_labels']))
+    # train_recognizer.save('savedModel.xml')
+    # print('Training accomplished successfuly.')
 
     # 4. Test model
     input('Test the model?\n')

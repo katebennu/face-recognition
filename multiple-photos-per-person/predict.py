@@ -3,8 +3,8 @@ import os
 
 
 def get_subjects_list(data_folder_path):
-    subjects = [""]
-    dirs = os.listdir(data_folder_path)
+    subjects = []
+    dirs = sorted(os.listdir(data_folder_path))
 
     for i in range(len(dirs)):
         dir_name = dirs[i]
@@ -49,15 +49,15 @@ def main():
     print("Loading model...")
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-    face_recognizer.read('savedModel.xml')
+    face_recognizer.read('goodModel.xml')
 
     print("Getting the list of subjects...")
 
-    subjects = get_subjects_list("training-data")
+    subjects = get_subjects_list("data")
 
     print("Predicting images...")
 
-    target_image = cv2.imread("training-data/warren/w9.jpg")
+    target_image = cv2.imread("data/sherlock/s5.jpg")
 
     predicted_label = predict(face_recognizer, target_image, subjects)
 
