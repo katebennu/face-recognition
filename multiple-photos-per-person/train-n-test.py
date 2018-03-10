@@ -70,7 +70,7 @@ def prepare_data(data_folder_path):
                 print('No face detected on the image: ' + image_name)
 
     print(subjects)
-    return faces, labels
+    return faces, labels, subjects
 
 
 def split_data(faces, labels):
@@ -83,26 +83,58 @@ def split_data(faces, labels):
     shuffled_labels = [labels[i] for i in rand_numbers]
     return shuffled_faces[: train], shuffled_labels[: train], shuffled_faces[-test :], shuffled_labels[-test :]
 
+def predict(test_recognizer, faces, subjects):
+    predictions = []
+    for face in faces:
+        # img = face.copy()
+
+        # predict the image using our face recognizer
+        prediction = test_recognizer.predict(face)
+
+        print(subjects)
+        print(prediction)
+
+        label = prediction[0]
+        predictions.append(label)
+    return predictions
+
+
+def evaluate_predictions(predictions, labels, subjects):
+    m = len(predictions)
+    correct = 0
+    for i in range(m):
+        if labels[i] == predictions[i]:
+            correct += 1
+        print("Actual label: {}, predicted label: {}".format(labels[i], predictions[i]))
+    print("{} out of {} correct".format(correct, m))
+
 
 def main():
     # 1. Get all files, recognize faces, return array of faces and array of labels
     print("Loading training data...")
-    faces, labels = prepare_data("data")
+    faces, labels, subjects = prepare_data("data")
     print(labels)
     print("Total faces: ", len(faces))
     print("Total labels: ", len(labels))
 
     # 2. Split data into training and test sets
     training_faces, training_labels, test_faces, test_labels = split_data(faces, labels)
-
     print(training_labels, test_labels)
+
     # 3. Train model
-    # face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    # face_recognizer.train(faces, np.array(labels))
-    # face_recognizer.save('savedModel.xml')
+    train_recognizer = cv2.face.LBPHFaceRecognizer_create()
+    train_recognizer.train(training_faces, np.array(training_labels))
+    train_recognizer.save('savedModel.xml')
+    print('Training accomplished successfuly.')
 
     # 4. Test model
+    input('Test the model?\n')
+    print("Loading model...")
+    test_recognizer = cv2.face.LBPHFaceRecognizer_create()
+    test_recognizer.read('savedModel.xml')
 
+    predicted_labels = predict(test_recognizer, test_faces, subjects)
 
+    evaluate_predictions(predicted_labels, test_labels, subjects)
 
 main()
