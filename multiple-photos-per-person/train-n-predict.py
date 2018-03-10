@@ -13,9 +13,10 @@ def detect_face(img):
 #convert the test image to gray scale as opencv face detector expects gray images
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    #load OpenCV face detector, I am using LBP which is fast
-    #there is also a more accurate but slow: Haar classifier
-    face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
+    #load OpenCV face detector
+    #for a faster load replace with:
+    #face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
+    face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_default.xml')
 
     #let's detect multiscale images(some images may be closer to camera than others)
     #result is a list of faces
@@ -98,6 +99,8 @@ def prepare_training_data(data_folder_path):
                 faces.append(face)
                 # add label for this face
                 labels.append(label)
+            else:
+                print('No face detected on the image: ' + image_name)
 
     cv2.destroyAllWindows()
     cv2.waitKey(1)
@@ -113,6 +116,8 @@ def prepare_training_data(data_folder_path):
 print("Preparing data...")
 faces, labels = prepare_training_data("training-data")
 print("Data prepared")
+
+print(labels)
 
 # print total faces and labels
 print("Total faces: ", len(faces))
