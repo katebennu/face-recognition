@@ -1,6 +1,15 @@
 import cv2
 import os
 import numpy as np
+import math
+
+# float between 0 and 1
+TRAIN_FILES_PROPORTION = 0.7
+
+
+def get_train_files(subject_dir_path):
+    subject_files = [f for f in sorted(os.listdir(subject_dir_path)) if not f.startswith(".")]
+    return subject_files[: math.floor(len(subject_files) * TRAIN_FILES_PROPORTION)]
 
 
 def detect_face(img):
@@ -41,9 +50,11 @@ def prepare_training_data(data_folder_path):
 
         subject_dir_path = data_folder_path + "/" + dir_name
 
-        subject_images_names = os.listdir(subject_dir_path)
+        subject_train_images = get_train_files(subject_dir_path)
 
-        for image_name in subject_images_names:
+        print(subject_train_images)
+
+        for image_name in subject_train_images:
             # ignore system files like .DS_Store
             if image_name.startswith("."):
                 continue
