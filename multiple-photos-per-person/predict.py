@@ -51,7 +51,7 @@ def main():
 
     face_recognizer.read('savedModel.xml')
 
-    print("Getting list of subjects...")
+    print("Getting the list of subjects...")
 
     subjects = get_subjects_list("training-data")
 

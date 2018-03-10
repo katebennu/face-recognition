@@ -22,6 +22,7 @@ def detect_face(img):
 
 
 def prepare_training_data(data_folder_path):
+    subjects = [""]
     dirs = os.listdir(data_folder_path)
 
     faces = []
@@ -36,7 +37,7 @@ def prepare_training_data(data_folder_path):
         subjects.append(dir_name)
 
         # labels must be integers
-        label = i + 1
+        label = i
 
         subject_dir_path = data_folder_path + "/" + dir_name
 
@@ -60,13 +61,11 @@ def prepare_training_data(data_folder_path):
             else:
                 print('No face detected on the image: ' + image_name)
 
+    print(subjects)
     return faces, labels
 
 
 def main():
-
-    subjects = get_subjects_list("training-data")
-
     print("Preparing data...")
     faces, labels = prepare_training_data("training-data")
     print("Data prepared")
@@ -80,8 +79,6 @@ def main():
 
     face_recognizer.train(faces, np.array(labels))
     face_recognizer.save('savedModel.xml')
-
-    print(subjects)
 
 
 main()
