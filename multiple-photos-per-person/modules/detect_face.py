@@ -22,5 +22,8 @@ def detect_face(img):
 def detect_faces(dir_path):
     files = os.listdir(dir_path)
     for file in files:
-        if imghdr.what(file):
-            detect_face(file)
+        file_path = os.path.join(dir_path, file)
+        if imghdr.what(file_path):
+            image = cv2.imread(file_path)
+            face, rect = detect_face(image)
+            print(rect)
