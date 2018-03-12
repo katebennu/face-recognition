@@ -3,6 +3,7 @@ import os
 import numpy as np
 import math
 import random
+from detect_face import detect_face
 
 # float, defines the split between training and test data, 
 # recommended between 0.6 and 0.9
@@ -11,21 +12,6 @@ TRAIN_FILES_PROPORTION = 0.8
 
 def filter_hidden(subject_dir_path):
     return [f for f in sorted(os.listdir(subject_dir_path)) if not f.startswith(".")]
-
-def detect_face(img):
-    #convert the test image to gray scale as opencv face detector expects gray images
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_default.xml')
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
-
-    if len(faces) == 0:
-        return None, None
-
-    #under the assumption that there will be only one face, extract the face area
-    (x, y, w, h) = faces[0]
-
-    #return only the face part of the image
-    return gray[y:y+w, x:x+h], faces[0]
 
 
 def prepare_data(data_folder_path):
@@ -108,11 +94,10 @@ def evaluate_predictions(predictions, labels, subjects, files):
     m = len(predictions)
     correct = 0
     for i in range(m):
-        print("Actual label: {}, predicted label: {}".format(subjects[labels[i]], subjects[predictions[i]]))
         if labels[i] == predictions[i]:
             correct += 1
         else:
-            print("Incorrect prediction for file " + files[i])
+            print("Incorrect prediction for file " + files[i] + "Actual label: {}, predicted label: {}".format(subjects[labels[i]], subjects[predictions[i]]))
     print("{} out of {} correct".format(correct, m))
 
 
@@ -131,10 +116,10 @@ def main():
     print(split['test_files'])
 
     # 3. Train model
-    # train_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    # train_recognizer.train(split['training_faces'], np.array(split['training_labels']))
-    # train_recognizer.save('savedModel.xml')
-    # print('Training accomplished successfuly.')
+    train_recognizer = cv2.face.LBPHFaceRecognizer_create()
+    train_recognizer.train(split['training_faces'], np.array(split['training_labels']))
+    train_recognizer.save('savedModel.xml')
+    print('Training accomplished successfuly.')
 
     # 4. Test model
     input('Test the model?\n')
