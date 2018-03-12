@@ -3,7 +3,7 @@ import os
 import numpy as np
 import math
 import random
-from detect_face import detect_face
+from modules.detect_face import detect_face
 
 # float, defines the split between training and test data, 
 # recommended between 0.6 and 0.9
@@ -97,7 +97,7 @@ def evaluate_predictions(predictions, labels, subjects, files):
         if labels[i] == predictions[i]:
             correct += 1
         else:
-            print("Incorrect prediction for file " + files[i] + "Actual label: {}, predicted label: {}".format(subjects[labels[i]], subjects[predictions[i]]))
+            print("Incorrect prediction for file " + files[i] + " Actual label: {}, predicted label: {}".format(subjects[labels[i]], subjects[predictions[i]]))
     print("{} out of {} correct".format(correct, m))
 
 
@@ -110,7 +110,6 @@ def main():
     print("Total labels: ", len(labels))
 
     # 2. Split data into training and test sets
-    split = {}
     split = split_data(faces, labels, files)
     print(split['test_labels']) 
     print(split['test_files'])
@@ -118,7 +117,7 @@ def main():
     # 3. Train model
     train_recognizer = cv2.face.LBPHFaceRecognizer_create()
     train_recognizer.train(split['training_faces'], np.array(split['training_labels']))
-    train_recognizer.save('savedModel.xml')
+    train_recognizer.save('saved_models/savedModel.xml')
     print('Training accomplished successfuly.')
 
     # 4. Test model
