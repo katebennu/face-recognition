@@ -19,11 +19,32 @@ def detect_face(img):
     return gray[y:y+w, x:x+h], faces[0]
 
 
-def detect_faces(dir_path):
+def find_images(dir_path):
+    ''' finds files in a given path name and returns a list of cv images'''
     files = os.listdir(dir_path)
+    images = []
     for file in files:
         file_path = os.path.join(dir_path, file)
         if imghdr.what(file_path):
             image = cv2.imread(file_path)
-            face, rect = detect_face(image)
-            print(rect)
+            images.append(image)
+    return images
+
+
+def draw_rectangle(img, rect):
+    (x, y, w, h) = rect
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+
+def draw_text(img, text, x, y):
+    cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
+
+
+def show_faces(arg):
+    if imghdr.what(arg):
+        detect_face(img)
+        draw_rectangle(img, rect)
+        # draw name of predicted person
+        draw_text(img, label_text, rect[0], rect[1] - 5)
+
+        return img
