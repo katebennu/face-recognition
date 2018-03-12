@@ -1,4 +1,7 @@
 import cv2
+import os
+import imghdr
+
 
 def detect_face(img):
     #convert the test image to gray scale as opencv face detector expects gray images
@@ -15,3 +18,9 @@ def detect_face(img):
     #return only the face part of the image
     return gray[y:y+w, x:x+h], faces[0]
 
+
+def detect_faces(dir_path):
+    files = os.listdir(dir_path)
+    for file in files:
+        if imghdr.what(file):
+            detect_face(file)
