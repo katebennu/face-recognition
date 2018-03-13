@@ -3,7 +3,7 @@ import os
 import numpy as np
 import math
 import random
-from modules.detect_face import detect_face
+from modules.detect_faces import detect_face
 
 # float, defines the split between training and test data, 
 # recommended between 0.6 and 0.9
@@ -41,9 +41,8 @@ def prepare_data(data_folder_path):
 
         for image_name in subject_train_images:
             image_path = subject_dir_path + "/" + image_name
-            image = cv2.imread(image_path)
             # detect face
-            face, rect = detect_face(image)
+            face, rect = detect_face(image_path)
             if face is not None:
                 faces.append(face)
                 labels.append(label)
@@ -124,7 +123,7 @@ def main():
     input('Test the model?\n')
     print("Loading model...")
     test_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    test_recognizer.read('savedModel.xml')
+    test_recognizer.read('saved_models/savedModel.xml')
 
     predicted_labels = predict(test_recognizer, split['test_faces'], subjects)
 

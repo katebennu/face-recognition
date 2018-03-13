@@ -3,8 +3,9 @@ import os
 import imghdr
 
 
-def detect_face(img):
+def detect_face(image_path):
     #convert the test image to gray scale as opencv face detector expects gray images
+    img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
@@ -26,8 +27,7 @@ def find_images(dir_path):
     for file in files:
         file_path = os.path.join(dir_path, file)
         if imghdr.what(file_path):
-            image = cv2.imread(file_path)
-            images.append(image)
+            images.append(file_path)
     return images
 
 
