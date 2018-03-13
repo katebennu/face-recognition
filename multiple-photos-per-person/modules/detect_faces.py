@@ -40,11 +40,30 @@ def draw_text(img, text, x, y):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
 
-def show_faces(arg):
-    if imghdr.what(arg):
-        detect_face(img)
-        draw_rectangle(img, rect)
-        # draw name of predicted person
-        draw_text(img, label_text, rect[0], rect[1] - 5)
+def show_faces(original_img):
+    img = original_img.copy()
+    detect_face(img)
+    draw_rectangle(img, rect)
+    # draw name of predicted person
+    draw_text(img, label_text, rect[0], rect[1] - 5)
 
-        return img
+    return img
+
+
+def main(path=".", show=False):
+    images = find_images(path)
+    for img in images:
+        rect, face = detect_face(img)
+
+
+
+if __name__ == "__main__":
+    """arguments: first: relative directory path, second: show detected """
+    import sys
+    main(sys.argv[1], bool(sys.argv[2]))
+
+
+# TODO:
+# class Image with
+# attributes: filename, face, rect, label,
+# methods: detect face, draw rect, draw text, show image
