@@ -12,9 +12,11 @@ class Image:
 
     def get_img_matrix(self):
         self.img_matrix = cv2.imread(self.path)
-        self.img_matrix_gray= cv2.cvtColor(self.img_matrix, cv2.COLOR_BGR2GRAY)
+        self.img_matrix_gray = cv2.cvtColor(self.img_matrix, cv2.COLOR_BGR2GRAY)
 
     def detect_face(self):
+        if not self.img_matrix_gray:
+            self.get_img_matrix()
         face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_default.xml')
         faces = face_cascade.detectMultiScale(self.img_matrix_gray, scaleFactor=1.2, minNeighbors=5)
         if len(faces) == 0:
@@ -22,6 +24,7 @@ class Image:
         (x, y, w, h) = faces[0]
         self.face_matrix = self.img_matrix_gray[y:y + w, x:x + h]
         self.rect = faces[0]
+        return self.face_matrix, self.rect
 
     def draw_rect(self, img):
         (x, y, w, h) = self.rect
@@ -31,7 +34,6 @@ class Image:
         cv2.putText(self.img_matrix_gray, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
     def show_image(self):
-
         if not self.img_matrix:
             self.get_img_matrix()
         if not self.face_matrix or not self.rect:
@@ -41,5 +43,9 @@ class Image:
         # self.detect_face(img)
         self.draw_rect(self.copy)
         cv2.imshow('image', self.copy)
+
+        k = cv2.waitKey(0) & 0xFF
+        if k == 27:  # wait for ESC key to exit
+            cv2.destroyAllWindows()
         # if label exists:
         # draw_text(img, label_text, rect[0], rect[1] - 5)
