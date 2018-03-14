@@ -39,17 +39,11 @@ def main(path=".", show=False):
             return show_or_return(path)
 
 
+# arguments: first: relative directory path, second: show detected
 if __name__ == "__main__":
-    """arguments: first: relative directory path, second: show detected """
     import sys
     path = sys.argv[1]
     show = False
     if len(sys.argv) > 2:
         show = sys.argv[2]
     main(path, show)
-
-
-# TODO:
-# class Image with
-# attributes: filename, face, rect, label,
-# methods: detect face, draw rect, draw text, show image
